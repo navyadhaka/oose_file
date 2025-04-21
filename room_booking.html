@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background-color: #1a365d;
+            color: white;
+            padding: 1rem;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        .nav-links li {
+            margin-left: 1rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .page {
+            display: none;
+        }
+        #search-page {
+            display: block;
+        }
+        .booking-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .booking-container {
+                flex-direction: row;
+            }
+        }
+        .search-section {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .results-section {
+            flex: 2;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #f6ad55;
+            color: #333;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ed8936;
+        }
+        .search-button {
+            width: 100%;
+        }
+        .room-card {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 640px) {
+            .room-card {
+                flex-direction: row;
+            }
+        }
+        .room-image {
+            height: 150px;
+            background-color: #ddd;
+            flex: 1;
+        }
+        .room-details {
+            padding: 1rem;
+            flex: 2;
+        }
+        .room-type {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .room-price {
+            font-weight: bold;
+            color: #1a365d;
+            margin: 0.5rem 0;
+        }
+        .room-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .booking-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .step-number {
+            background-color: #ddd;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        .step.active .step-number {
+            background-color: #f6ad55;
+        }
+        .confirmation {
+            background-color: #c6f6d5;
+            border: 1px solid #48bb78;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Hotel Booking</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Rooms</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Search Page -->
+        <div id="search-page" class="page">
+            <h1>Book Your Stay</h1>
+            
+            <div class="steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div>Search</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Select</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>Details</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>Confirm</div>
+                </div>
+            </div>
+            
+            <div class="booking-container">
+                <div class="search-section">
+                    <h2>Search for Rooms</h2>
+                    <form id="search-form">
+                        <div class="form-group">
+                            <label for="check-in">Check-in Date</label>
+                            <input type="date" id="check-in" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="check-out">Check-out Date</label>
+                            <input type="date" id="check-out" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guests">Guests</label>
+                            <select id="guests" required>
+                                <option value="1">1 Adult</option>
+                                <option value="2" selected>2 Adults</option>
+                                <option value="3">3 Adults</option>
+                                <option value="4">4 Adults</option>
+                            </select>
+                        </div>
+                        <button type="button" class="search-button" onclick="showRoomSelection()">Search</button>
+                    </form>
+                </div>
+                
+                <div class="results-section">
+                    <img src="/api/placeholder/800/300" alt="Hotel" style="width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+                    <h2>Welcome to Our Hotel</h2>
+                    <p>Enjoy luxury accommodation with world-class amenities.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Room Selection Page -->
+        <div id="room-selection-page" class="page">
+            <h1>Select Your Room</h1>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>Search</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <div>Select</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>Details</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>Confirm</div>
+                </div>
+            </div>
+            
+            <div class="booking-container">
+                <div class="search-section">
+                    <h2>Your Search</h2>
+                    <div class="form-group">
+                        <label>Check-in:</label>
+                        <div id="summary-checkin">April 25, 2025</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Check-out:</label>
+                        <div id="summary-checkout">April 28, 2025</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Guests:</label>
+                        <div id="summary-guests">2 Adults</div>
+                    </div>
+                    <button type="button" onclick="backToSearch()">Modify</button>
+                </div>
+                
+                <div class="results-section">
+                    <div class="room-card">
+                        <div class="room-image">
+                            <img src="/api/placeholder/300/150" alt="Standard Room" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="room-details">
+                            <div class="room-type">Standard Room</div>
+                            <p>Comfortable room with all essential amenities.</p>
+                            <div class="room-price">$120 per night</div>
+                            <div class="room-actions">
+                                <button onclick="selectRoom('Standard Room', 120)">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="room-card">
+                        <div class="room-image">
+                            <img src="/api/placeholder/300/150" alt="Deluxe Room" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="room-details">
+                            <div class="room-type">Deluxe Room</div>
+                            <p>Spacious room with enhanced amenities and city views.</p>
+                            <div class="room-price">$180 per night</div>
+                            <div class="room-actions">
+                                <button onclick="selectRoom('Deluxe Room', 180)">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="room-card">
+                        <div class="room-image">
+                            <img src="/api/placeholder/300/150" alt="Suite" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="room-details">
+                            <div class="room-type">Executive Suite</div>
+                            <p>Luxurious suite with separate living area and premium amenities.</p>
+                            <div class="room-price">$300 per night</div>
+                            <div class="room-actions">
+                                <button onclick="selectRoom('Executive Suite', 300)">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Details Page -->
+        <div id="booking-details-page" class="page">
+            <h1>Complete Your Booking</h1>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>Search</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Select</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">3</div>
+                    <div>Details</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>Confirm</div>
+                </div>
+            </div>
+            
+            <div class="booking-container">
+                <div class="search-section" style="flex: 2;">
+                    <h2>Guest Information</h2>
+                    <form id="guest-form">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="first-name">First Name</label>
+                                    <input type="text" id="first-name" required>
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="last-name">Last Name</label>
+                                    <input type="text" id="last-name" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" required>
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="phone">Phone</label>
+                                    <input type="tel" id="phone" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h2>Payment Information</h2>
+                        
+                        <div class="form-group">
+                            <label for="card-name">Name on Card</label>
+                            <input type="text" id="card-name" required>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="flex: 2;">
+                                <div class="form-group">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" id="card-number" required placeholder="XXXX XXXX XXXX XXXX">
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="expiry">Expiry</label>
+                                    <input type="text" id="expiry" required placeholder="MM/YY">
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" id="cvv" required placeholder="XXX">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="showConfirmation()">Complete Booking</button>
+                    </form>
+                </div>
+                
+                <div class="booking-summary" style="flex: 1;">
+                    <h2>Booking Summary</h2>
+                    <div class="summary-row">
+                        <span>Room:</span>
+                        <span id="summary-room-type">Deluxe Room</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Check-in:</span>
+                        <span id="summary-checkin-2">April 25, 2025</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Check-out:</span>
+                        <span id="summary-checkout-2">April 28, 2025</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Stay:</span>
+                        <span id="summary-nights">3 Nights</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Rate:</span>
+                        <span id="summary-rate">$180 per night</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Room Total:</span>
+                        <span id="summary-room-total">$540</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Taxes (12%):</span>
+                        <span id="summary-taxes">$64.80</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Total:</span>
+                        <span id="summary-total">$604.80</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Page -->
+        <div id="confirmation-page" class="page">
+            <div class="confirmation">
+                <h2>Booking Confirmed!</h2>
+                <p>Thank you for booking with us. Your reservation has been confirmed.</p>
+                
+                <div style="background: white; border-radius: 8px; padding: 1rem; margin: 1rem 0; text-align: left;">
+                    <h3>Booking Details</h3>
+                    <div class="summary-row">
+                        <span>Confirmation #:</span>
+                        <span>BKG-254981</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Guest:</span>
+                        <span id="conf-guest-name">John Doe</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Room:</span>
+                        <span id="conf-room-type">Deluxe Room</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Check-in:</span>
+                        <span id="conf-checkin">April 25, 2025</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Check-out:</span>
+                        <span id="conf-checkout">April 28, 2025</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Paid:</span>
+                        <span id="conf-total">$604.80</span>
+                    </div>
+                </div>
+                
+                <p>A confirmation email has been sent to your email address.</p>
+                
+                <button onclick="startNewBooking()">Make Another Booking</button>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Initialize dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            document.getElementById('check-in').valueAsDate = today;
+            document.getElementById('check-out').valueAsDate = tomorrow;
+        });
+        
+        // Navigation functions
+        function showRoomSelection() {
+            document.getElementById('search-page').style.display = 'none';
+            document.getElementById('room-selection-page').style.display = 'block';
+            
+            // Update summary
+            const checkin = new Date(document.getElementById('check-in').value);
+            const checkout = new Date(document.getElementById('check-out').value);
+            const guests = document.getElementById('guests').value;
+            
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('summary-checkin').textContent = checkin.toLocaleDateString('en-US', options);
+            document.getElementById('summary-checkout').textContent = checkout.toLocaleDateString('en-US', options);
+            document.getElementById('summary-guests').textContent = guests + (guests === '1' ? ' Adult' : ' Adults');
+        }
+        
+        function backToSearch() {
+            document.getElementById('room-selection-page').style.display = 'none';
+            document.getElementById('search-page').style.display = 'block';
+        }
+        
+        function selectRoom(roomType, rate) {
+            document.getElementById('room-selection-page').style.display = 'none';
+            document.getElementById('booking-details-page').style.display = 'block';
+            
+            // Calculate stay duration
+            const checkin = new Date(document.getElementById('check-in').value);
+            const checkout = new Date(document.getElementById('check-out').value);
+            const nights = Math.floor((checkout - checkin) / (1000 * 60 * 60 * 24));
+            
+            // Update booking summary
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('summary-room-type').textContent = roomType;
+            document.getElementById('summary-checkin-2').textContent = checkin.toLocaleDateString('en-US', options);
+            document.getElementById('summary-checkout-2').textContent = checkout.toLocaleDateString('en-US', options);
+            document.getElementById('summary-nights').textContent = nights + (nights === 1 ? ' Night' : ' Nights');
+            document.getElementById('summary-rate').textContent = '$' + rate + ' per night';
+            
+            const roomTotal = rate * nights;
+            const taxes = roomTotal * 0.12;
+            const total = roomTotal + taxes;
+            
+            document.getElementById('summary-room-total').textContent = '$' + roomTotal.toFixed(2);
+            document.getElementById('summary-taxes').textContent = '$' + taxes.toFixed(2);
+            document.getElementById('summary-total').textContent = '$' + total.toFixed(2);
+        }
+        
+        function showConfirmation() {
+            document.getElementById('booking-details-page').style.display = 'none';
+            document.getElementById('confirmation-page').style.display = 'block';
+            
+            // Update confirmation details
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            document.getElementById('conf-guest-name').textContent = firstName + ' ' + lastName;
+            document.getElementById('conf-room-type').textContent = document.getElementById('summary-room-type').textContent;
+            document.getElementById('conf-checkin').textContent = document.getElementById('summary-checkin-2').textContent;
+            document.getElementById('conf-checkout').textContent = document.getElementById('summary-checkout-2').textContent;
+            document.getElementById('conf-total').textContent = document.getElementById('summary-total').textContent;
+        }
+        
+        function startNewBooking() {
+            document.getElementById('confirmation-page').style.display = 'none';
+            document.getElementById('search-page').style.display = 'block';
+            
+            // Reset form
+            document.getElementById('search-form').reset();
+            document.getElementById('guest-form').reset();
+            
+            // Re-initialize dates
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            document.getElementById('check-in').valueAsDate = today;
+            document.getElementById('check-out').valueAsDate = tomorrow;
+        }
+    </script>
+</body>
+</html>
