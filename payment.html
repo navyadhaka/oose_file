@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Billing System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #1a365d;
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .flex {
+            display: flex;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .gap-4 {
+            gap: 1rem;
+        }
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        .tab.active {
+            border-bottom: 2px solid #1a365d;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            background-color: #1a365d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background-color: #718096;
+        }
+        .btn-success {
+            background-color: #48bb78;
+        }
+        .btn-danger {
+            background-color: #e53e3e;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 1rem;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (min-width: 768px) {
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 2fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container flex justify-between items-center">
+            <h1>Hotel Billing System</h1>
+            <div>
+                <span id="current-date">April 21, 2025</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('current-bills')">Current Bills</div>
+            <div class="tab" onclick="showTab('new-bill')">New Bill</div>
+            <div class="tab" onclick="showTab('billing-history')">Billing History</div>
+        </div>
+
+        <!-- Current Bills Tab -->
+        <div id="current-bills" class="tab-content">
+            <div class="card mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2>Active Bills</h2>
+                    <div>
+                        <input type="text" placeholder="Search by room or guest..." onkeyup="searchBills(this.value)">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="active-bills-table">
+                        <thead>
+                            <tr>
+                                <th>Bill #</th>
+                                <th>Room</th>
+                                <th>Guest Name</th>
+                                <th>Check-in</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>B-1001</td>
+                                <td>101</td>
+                                <td>John Smith</td>
+                                <td>Apr 18, 2025</td>
+                                <td>$450.00</td>
+                                <td>Open</td>
+                                <td>
+                                    <button class="btn" onclick="viewBill('B-1001')">View</button>
+                                    <button class="btn btn-success" onclick="showPaymentModal('B-1001')">Payment</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>B-1002</td>
+                                <td>203</td>
+                                <td>Emma Johnson</td>
+                                <td>Apr 19, 2025</td>
+                                <td>$680.00</td>
+                                <td>Open</td>
+                                <td>
+                                    <button class="btn" onclick="viewBill('B-1002')">View</button>
+                                    <button class="btn btn-success" onclick="showPaymentModal('B-1002')">Payment</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>B-1003</td>
+                                <td>305</td>
+                                <td>Michael Brown</td>
+                                <td>Apr 20, 2025</td>
+                                <td>$320.00</td>
+                                <td>Partial</td>
+                                <td>
+                                    <button class="btn" onclick="viewBill('B-1003')">View</button>
+                                    <button class="btn btn-success" onclick="showPaymentModal('B-1003')">Payment</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Bill Tab -->
+        <div id="new-bill" class="tab-content hidden">
+            <div class="card mb-4">
+                <h2 class="mb-4">Create New Bill</h2>
+                <div class="grid-2">
+                    <div>
+                        <div class="mb-4">
+                            <label for="room-number">Room Number</label>
+                            <select id="room-number" onchange="loadGuestInfo()">
+                                <option value="">Select Room</option>
+                                <option value="101">101 - Standard Single</option>
+                                <option value="102">102 - Standard Double</option>
+                                <option value="201">201 - Deluxe Single</option>
+                                <option value="202">202 - Deluxe Double</option>
+                                <option value="301">301 - Suite</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="guest-name">Guest Name</label>
+                            <input type="text" id="guest-name" readonly>
+                        </div>
+                        <div class="mb-4">
+                            <label for="check-in-date">Check-in Date</label>
+                            <input type="text" id="check-in-date" readonly>
+                        </div>
+                        <div class="mb-4">
+                            <label for="check-out-date">Check-out Date</label>
+                            <input type="date" id="check-out-date">
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="mb-4">Charges</h3>
+                        <div class="mb-4">
+                            <table id="charges-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Rate</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <select id="charge-item">
+                                                <option value="">Select Item</option>
+                                                <option value="Room">Room Charge</option>
+                                                <option value="Food">Food & Beverage</option>
+                                                <option value="Laundry">Laundry</option>
+                                                <option value="Spa">Spa Service</option>
+                                                <option value="Minibar">Minibar</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="number" id="charge-qty" value="1" min="1"></td>
+                                        <td><input type="number" id="charge-rate" step="0.01"></td>
+                                        <td id="charge-amount">$0.00</td>
+                                        <td><button class="btn" onclick="addCharge()">Add</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card mb-4">
+                            <h3 class="mb-4">Charges Summary</h3>
+                            <table id="charges-summary">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JS -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-right"><strong>Subtotal:</strong></td>
+                                        <td id="subtotal">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-right"><strong>Tax (12%):</strong></td>
+                                        <td id="tax">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-right"><strong>Total:</strong></td>
+                                        <td id="total">$0.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="flex justify-between">
+                            <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                            <button class="btn btn-success" onclick="generateBill()">Generate Bill</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing History Tab -->
+        <div id="billing-history" class="tab-content hidden">
+            <div class="card mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2>Billing History</h2>
+                    <div>
+                        <input type="text" placeholder="Search bills..." onkeyup="searchHistory(this.value)">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Bill #</th>
+                                <th>Room</th>
+                                <th>Guest Name</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>B-1000</td>
+                                <td>205</td>
+                                <td>Sarah Wilson</td>
+                                <td>Apr 10, 2025</td>
+                                <td>Apr 15, 2025</td>
+                                <td>$875.00</td>
+                                <td>Paid</td>
+                                <td>
+                                    <button class="btn" onclick="viewBill('B-1000')">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>B-0999</td>
+                                <td>104</td>
+                                <td>Robert Davis</td>
+                                <td>Apr 08, 2025</td>
+                                <td>Apr 12, 2025</td>
+                                <td>$560.00</td>
+                                <td>Paid</td>
+                                <td>
+                                    <button class="btn" onclick="viewBill('B-0999')">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Bill Modal -->
+    <div id="bill-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2>Bill Details</h2>
+                <button onclick="closeBillModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">×</button>
+            </div>
+            <div id="bill-details">
+                <div class="mb-4">
+                    <div class="flex justify-between">
+                        <div>
+                            <h3>Luxury Hotel</h3>
+                            <p>123 Hotel Street, City</p>
+                            <p>Tel: (123) 456-7890</p>
+                        </div>
+                        <div>
+                            <h3 id="bill-id">Bill #B-1001</h3>
+                            <p id="bill-date">April 21, 2025</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h4>Guest Information</h4>
+                    <div class="flex justify-between">
+                        <div>
+                            <p id="guest-details">John Smith</p>
+                            <p id="room-details">Room 101 - Standard Single</p>
+                        </div>
+                        <div>
+                            <p id="checkin-details">Check-in: Apr 18, 2025</p>
+                            <p id="checkout-details">Check-out: Apr 21, 2025</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h4>Charges</h4>
+                    <table class="mb-4">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bill-items">
+                            <tr>
+                                <td>Room Charge</td>
+                                <td>3</td>
+                                <td>$150.00</td>
+                                <td>$450.00</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                                <td id="bill-subtotal">$450.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Tax (12%):</strong></td>
+                                <td id="bill-tax">$54.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                <td id="bill-total">$504.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mb-4" id="payment-history-section">
+                    <h4>Payment History</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Amount</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payment-history">
+                            <!-- Will be populated by JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="text-right"><strong>Amount Paid:</strong></td>
+                                <td id="bill-paid">$0.00</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right"><strong>Balance Due:</strong></td>
+                                <td id="bill-balance">$504.00</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="flex justify-between">
+                    <button class="btn" onclick="printBill()">Print</button>
+                    <button class="btn btn-success" onclick="showPaymentModal()" id="make-payment-btn">Make Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2>Make Payment</h2>
+                <button onclick="closePaymentModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">×</button>
+            </div>
+            <div id="payment-details">
+                <div class="mb-4">
+                    <h3 id="payment-bill-id">Bill #B-1001</h3>
+                    <p id="payment-guest">Guest: John Smith</p>
+                    <p id="payment-room">Room: 101</p>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between">
+                        <p>Total Amount:</p>
+                        <p id="payment-total">$504.00</p>
+                    </div>
+                    <div class="flex justify-between">
+                        <p>Amount Paid:</p>
+                        <p id="payment-paid">$0.00</p>
+                    </div>
+                    <div class="flex justify-between">
+                        <p><strong>Balance Due:</strong></p>
+                        <p id="payment-balance"><strong>$504.00</strong></p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="payment-amount">Payment Amount</label>
+                    <input type="number" id="payment-amount" step="0.01">
+                </div>
+                <div class="mb-4">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method">
+                        <option value="Cash">Cash</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="mb-4" id="credit-card-details">
+                    <div class="mb-4">
+                        <label for="card-number-payment">Card Number</label>
+                        <input type="text" id="card-number-payment" placeholder="XXXX XXXX XXXX XXXX">
+                    </div>
+                    <div class="flex gap-4">
+                        <div style="flex: 1;">
+                            <label for="card-expiry">Expiry Date</label>
+                            <input type="text" id="card-expiry" placeholder="MM/YY">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="card-cvv">CVV</label>
+                            <input type="text" id="card-cvv" placeholder="XXX">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="payment-reference">Reference/Notes</label>
+                    <input type="text" id="payment-reference">
+                </div>
+                <div class="flex justify-between">
+                    <button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                    <button class="btn btn-success" onclick="processPayment()">Process Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Tab navigation
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show the selected tab content
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+        // Calculate amount for new charge
+        document.getElementById('charge-qty').addEventListener('input', calculateChargeAmount);
+        document.getElementById('charge-rate').addEventListener('input', calculateChargeAmount);
+
+        function calculateChargeAmount() {
+            const qty = parseFloat(document.getElementById('charge-qty').value) || 0;
+            const rate = parseFloat(document.getElementById('charge-rate').value) || 0;
+            const amount = qty * rate;
+            document.getElementById('charge-amount').textContent = '$' + amount.toFixed(2);
+        }
+
+        // Global variables
+        let charges = [];
+        let currentBillId = '';
+
+        // Sample guest data
+        const guestsData = {
+            '101': { name: 'John Smith', checkIn: 'Apr 18, 2025' },
+            '102': { name: 'Lisa Wong', checkIn: 'Apr 20, 2025' },
+            '201': { name: 'David Miller', checkIn: 'Apr 19, 2025' },
+            '202': { name: 'Emma Johnson', checkIn: 'Apr 19, 2025' },
+            '301': { name: 'Michael Brown', checkIn: 'Apr 20, 2025' }
+        };
+
+        // Load guest info when room is selected
+        function loadGuestInfo() {
+            const roomNumber = document.getElementById('room-number').value;
+            if (roomNumber && guestsData[roomNumber]) {
+                document.getElementById('guest-name').value = guestsData[roomNumber].name;
+                document.getElementById('check-in-date').value = guestsData[roomNumber].checkIn;
+            } else {
+                document.getElementById('guest-name').value = '';
+                document.getElementById('check-in-date').value = '';
+            }
+        }
+
+        // Add charge to the bill
+        function addCharge() {
+            const item = document.getElementById('charge-item').value;
+            if (!item) {
+                alert('Please select an item');
+                return;
+            }
+            
+            const qty = parseFloat(document.getElementById('charge-qty').value) || 0;
+            const rate = parseFloat(document.getElementById('charge-rate').value) || 0;
+            const amount = qty * rate;
+            
+            if (qty <= 0 || rate <= 0) {
+                alert('Please enter valid quantity and rate');
+                return;
+            }
+            
+            // Add to charges array
+            charges.push({
+                item: item,
+                qty: qty,
+                rate: rate,
+                amount: amount
+            });
+            
+            // Update charges summary
+            updateChargesSummary();
+            
+            // Reset the form
+            document.getElementById('charge-item').value = '';
+            document.getElementById('charge-qty').value = '1';
+            document.getElementById('charge-rate').value = '';
+            document.getElementById('charge-amount').textContent = '$0.00';
+        }
+
+        // Update charges summary
+        function updateChargesSummary() {
+            const tbody = document.querySelector('#charges-summary tbody');
+            tbody.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            charges.forEach((charge, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${charge.item}</td>
+                    <td>${charge.qty}</td>
+                    <td>$${charge.amount.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+                
+                subtotal += charge.amount;
+            });
+            
+            const tax = subtotal * 0.12;
+            const total = subtotal + tax;
+            
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+            document.getElementById('total').textContent = '$' + total.toFixed(2);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('room-number').value = '';
+            document.getElementById('guest-name').value = '';
+            document.getElementById('check-in-date').value = '';
+            document.getElementById('check-out-date').value = '';
+            
+            charges = [];
+            updateChargesSummary();
+            
+            document.getElementById('charge-item').value = '';
+            document.getElementById('charge-qty').value = '1';
+            document.getElementById('charge-rate').value = '';
+            document.getElementById('charge-amount').textContent = '$0.00';
+        }
+
+        // Generate bill
+        function generateBill() {
+            const roomNumber = document.getElementById('room-number').value;
+            if (!roomNumber) {
+                alert('Please select a room');
+                return;
+            }
+            
+            if (charges.length === 0) {
+                alert('Please add at least one charge');
+                return;
+            }
+            
+            alert('Bill generated successfully!');
+            
+            // In a real app, you would save the bill to a database
+            // and redirect to the bill view page
+            
+            // Reset form after generating bill
+            resetForm();
+            showTab('current-bills');
+        }
+
+        // View bill
+        function viewBill(billId) {
+            // In a real app, you would fetch bill details from the server
+            currentBillId = billId;
+            
+            // Update modal with bill details
+            document.getElementById('bill-id').textContent = 'Bill #' + billId;
+            
+            // Show the modal
+            document.getElementById('bill-modal').style.display = 'flex';
+        }
+
+        // Close bill modal
+        function closeBillModal() {
+            document.getElementById('bill-modal').style.display = 'none';
+        }
+
+        // Show payment modal
+        function showPaymentModal(billId) {
+            if (billId) {
+                currentBillId = billId;
+            }
+            
+            // In a real app, you would fetch payment details from the server
+            document.getElementById('payment-bill-id').textContent = 'Bill #' + currentBillId;
+            
+            // Close bill modal if open
+            document.getElementById('bill-modal').style.display = 'none';
+            
+            // Show payment modal
+            document.getElementById('payment-modal').style.display = 'flex';
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        // Process payment
+        function processPayment() {
+            const amount = parseFloat(document.getElementById('payment-amount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                return;
+            }
+            
+            // In a real app, you would process the payment through a payment gateway
+            // and update the server with payment details
+            
+            alert('Payment processed successfully!');
+            closePaymentModal();
+            
+            // Refresh the bills list
+            // In a real app, you would update the UI based on the server response
+        }
+
+        // Print bill
+        function printBill() {
+            // In a real app, you would generate a printable version of the bill
+            window.print();
+        }
+
+        // Search bills
+        function searchBills(query) {
+            query = query.toLowerCase();
+            const rows = document.querySelectorAll('#active-bills-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Search history
+        function searchHistory(query) {
+            query = query.toLowerCase();
+            const rows = document.querySelectorAll('#history-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Show/hide credit card details based on payment method
+        document.getElementById('payment-method').addEventListener('change', function() {
+            const creditCardDetails = document.getElementById('credit-card-details');
+            if (this.value === 'Credit Card' || this.value === 'Debit Card') {
+                creditCardDetails.style.display = 'block';
+            } else {
+                creditCardDetails.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
